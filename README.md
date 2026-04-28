@@ -1,4 +1,6 @@
 # Finance News Summary System
+[A Short Demo of this project](https://youtu.be/dJyh1TYeqD4)
+
 
 News text extraction + **BART** summarization (`facebook/bart-large-cnn`). **FastAPI** serves a small static UI; **ARQ** + **Redis** run URL summarization jobs (`POST` → `job_id` → poll `GET /jobs/...`).
 
@@ -48,3 +50,9 @@ python summary_BART.py --num_beams 2 --max_output_length 60 --batch_size 4
 
 - **Docker / Redis**: use `SKIP_REDIS=1` if Redis runs elsewhere; fix Docker Desktop if compose fails.  
 - **Jobs stuck**: start the **ARQ worker** and match Redis host/port with the API.
+
+## Things to work on
+1. Better content extraction
+2. Better summary
+3. More services, features, such as news crawler using keyword and time period to generate summary
+4. More AI services deployed in this system
