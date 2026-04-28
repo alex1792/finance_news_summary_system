@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance News Summary System</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="wrap">
+        <h1>Finance News Summary System</h1>
+        <p class="sub">Search by keyword and date range, or paste a single article URL to summarize.</p>
+
+        <div class="modes" role="tablist">
+            <button type="button" class="active" data-mode="keyword" aria-selected="true">Keyword search</button>
+            <button type="button" data-mode="url" aria-selected="false">Article URL</button>
+        </div>
+
+        <div id="panel-keyword" class="panel visible" role="tabpanel">
+            <form id="form-keyword">
+                <label for="keyword">Keyword</label>
+                <input type="text" id="keyword" name="keyword" placeholder="e.g. bitcoin, NVIDIA" required autocomplete="off">
+
+                <div class="row">
+                    <div>
+                        <label for="start_date">Start date</label>
+                        <input type="date" id="start_date" name="start_date" required>
+                    </div>
+                    <div>
+                        <label for="end_date">End date</label>
+                        <input type="date" id="end_date" name="end_date" required>
+                    </div>
+                </div>
+                <p class="hint">Request JSON fields: <code>keyword</code>, <code>start_date</code>, <code>end_date</code> (YYYY-MM-DD).</p>
+                <div class="actions">
+                    <button type="submit" id="btn-keyword">Search &amp; summarize</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="panel-url" class="panel" role="tabpanel">
+            <form id="form-url">
+                <label for="article_url">Article URL</label>
+                <input type="url" id="article_url" name="url" placeholder="https://example.com/news/article" required autocomplete="url">
+                <p class="hint">Request JSON field: <code>url</code>.</p>
+                <div class="actions">
+                    <button type="submit" id="btn-url">Summarize URL</button>
+                </div>
+            </form>
+        </div>
+
+        <p id="error" class="err" role="alert"></p>
+
+        <div class="out">
+            <h2>Response</h2>
+            <pre id="output"><span class="output-placeholder">Submit a form to see the API response.</span></pre>
+        </div>
+    </div>
+
+    <script src="/static/app.js" defer></script>
+</body>
+</html>

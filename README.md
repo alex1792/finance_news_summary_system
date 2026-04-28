@@ -3,10 +3,23 @@
 ## System Architecture
 ![system_architecture](system_architecture.png)
 
+```
+task queue: Docker Redis
+```
+1. client先把資料丟給server, server建立job and job_id, 並把job丟到docker redis, 並把job_id回傳給client
+2. 後端的ARQ worker從redis中抓取task來做, 做完之後先存到database, commit之後再將task status更新到redis
+3. Client在跟server要結果的時候, 可以先去redis找job status (redis當作一個cache), 確定task is done, 再跟database query result
+4. 如果redis內的job status已經expired, 就去資料庫query
+
 ## Worker pipeline
 ![worker_pipeline](worker_pipeline.png)
 
 ## Quick Start
+```
+./scripts/dev.sh
+```
+This will run the full-stack async system.
+
 ```
 python news_url_collector.py --query keyword --start_data YY-MM-DD --end_date YY-MM-DD --language en --sort_by relevancy --page 1
 ```

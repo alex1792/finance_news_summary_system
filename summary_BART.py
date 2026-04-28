@@ -38,9 +38,42 @@ class SummaryBART:
 
             return self.tokenizer.batch_decode(summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
 
-    def write_summary_to_file(self, output_f,summary):
-        output_f.write(json.dumps(summary, ensure_ascii=False) + '\n')
+    def write_summary_to_file(self, output_f, title,summary):
+        output_dict = {
+            'title': title,
+            'summary': summary
+        }
         
+        output_f.write(json.dumps(output_dict, ensure_ascii=False) + '\n')
+    
+    def summarize_news(self, filename):
+        with open(filename, 'r') as f:
+            # for line in f:
+            #     article = json.loads(line)['content']
+
+            #     summary = summary_BART.summarize(article)
+            #     summary_BART.write_summary_to_file(summary)
+
+            with open('output/json/summary.json', 'w') as output_f:
+                batch = []
+                batch_titles = []
+                
+                for line in f:
+                    article = json.loads(line)['content']
+                    title = json.loads(line)['title']
+                    if len(batch) < args.batch_size:
+                        batch.append(article)
+                        batch_titles.append(title)
+                    else:
+                        summaries = summary_BART.batch_summarize(batch)
+
+                        for summary, title in zip(summaries, batch_titles):
+                            summary_BART.write_summary_to_file(output_f, title, summary)
+                    
+                        batch = []
+                        batch_titles = []
+                        batch.append(article)
+                        batch_titles.append(title)
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Summary BART')
@@ -48,6 +81,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_beams', type=int, required=True, help='The number of beams', default=2)
     parser.add_argument('--max_output_length', type=int, required=True, help='The max output length', default=40)
     parser.add_argument('--batch_size', type=int, required=False, help='The batch size', default=10)
+    parser.add_argument('--input_file', type=str, required=False, help='The input file', default='output/json/news.json')
     args = parser.parse_args()
 
     # initialize the summary BART model
@@ -55,30 +89,35 @@ if __name__ == "__main__":
     
     # from news.json read the article
     start_time = time.perf_counter()
-    with open('news.json', 'r') as f:
-        # for line in f:
-        #     article = json.loads(line)['content']
+    summary_BART.summarize_news(args.input_file)
+    # with open(args.input_file, 'r') as f:
+    #     # for line in f:
+    #     #     article = json.loads(line)['content']
 
-        #     summary = summary_BART.summarize(article)
-        #     summary_BART.write_summary_to_file(summary)
+    #     #     summary = summary_BART.summarize(article)
+    #     #     summary_BART.write_summary_to_file(summary)
 
-        with open('summary.json', 'w') as output_f:
-            batch = []
+    #     with open('output/json/summary.json', 'w') as output_f:
+    #         batch = []
+    #         batch_titles = []
             
-            for line in f:
-                article = json.loads(line)['content']
-                if len(batch) < args.batch_size:
-                    batch.append(article)
-                else:
-                    summaries = summary_BART.batch_summarize(batch)
-                    batch = []
-                    batch.append(article)
+    #         for line in f:
+    #             article = json.loads(line)['content']
+    #             title = json.loads(line)['title']
+    #             if len(batch) < args.batch_size:
+    #                 batch.append(article)
+    #                 batch_titles.append(title)
+    #             else:
+    #                 summaries = summary_BART.batch_summarize(batch)
 
-                    for summary in summaries:
-                        summary_BART.write_summary_to_file(output_f, summary)
-        
-            
-
+    #                 for summary, title in zip(summaries, batch_titles):
+    #                     summary_BART.write_summary_to_file(output_f, title, summary)
+                
+    #                 batch = []
+    #                 batch_titles = []
+    #                 batch.append(article)
+    #                 batch_titles.append(title)
+                
     end_time = time.perf_counter()
     print(f"Time taken: {end_time - start_time} seconds")
     

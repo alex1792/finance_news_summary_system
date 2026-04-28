@@ -56,7 +56,7 @@ class UrlCollector:
         # print(articles)
 
         # write to json file
-        with open('url.json', 'w') as f:
+        with open('output/json/url.json', 'w') as f:
             for article in articles:
                 f.write(json.dumps(article, ensure_ascii=False) + "\n")
 

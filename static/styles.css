@@ -1,0 +1,212 @@
+:root {
+    --bg: #0f1419;
+    --surface: #1a2332;
+    --border: #2d3a4d;
+    --text: #e7edf5;
+    --muted: #8b9cb3;
+    --accent: #3d8bfd;
+    --accent-dim: #2a5fae;
+    --danger: #f87171;
+    --radius: 10px;
+    --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+}
+
+.modes {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.modes button {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.modes button:hover {
+    color: var(--text);
+    border-color: var(--muted);
+}
+
+.modes button.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.35rem 1.35rem 1.15rem;
+}
+
+.panel.visible {
+    display: block;
+}
+
+label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.35rem;
+    margin-top: 1rem;
+}
+
+label:first-of-type {
+    margin-top: 0;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="date"] {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(61, 139, 253, 0.25);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 560px) {
+    .row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.actions {
+    margin-top: 1.35rem;
+}
+
+.actions button[type="submit"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.actions button[type="submit"]:hover {
+    filter: brightness(1.08);
+}
+
+.actions button[type="submit"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: none;
+}
+
+.hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+
+.hint code {
+    font-size: 0.78rem;
+    background: var(--bg);
+    padding: 0.12rem 0.35rem;
+    border-radius: 4px;
+}
+
+.out {
+    margin-top: 2rem;
+}
+
+.out h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.65rem;
+}
+
+.out pre {
+    margin: 0;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.output-placeholder {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.err {
+    color: var(--danger);
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+}
+
+.err:empty {
+    display: none;
+}

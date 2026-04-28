@@ -23,19 +23,21 @@ DEFAULT_HEADERS = {
 }
 
 class NewsCrawler:
-    def __init__(self, url_file_name='url.json'):
+    def __init__(self, url_file_name='output/json/url.json', load_urls=True):
         self.url_file_name = url_file_name
         self.urls = []
         self.items = []
+        self.load_urls = load_urls
 
-        # read urls from file, and save urls to self.urls
-        with open(self.url_file_name, 'r') as f:
-            for line in f:
-                json_data = json.loads(line)
-                self.urls.append(json_data['url'])
-                self.items.append(json.loads(line))
+        if self.load_urls:
+            # read urls from file, and save urls to self.urls
+            with open(self.url_file_name, 'r') as f:
+                for line in f:
+                    json_data = json.loads(line)
+                    self.urls.append(json_data['url'])
+                    self.items.append(json.loads(line))
    
-    def crawl_news(self, item, new_f):
+    def crawl_news(self, item, new_f_name=None):
         url = item['url']
         response = requests.get(url, headers=DEFAULT_HEADERS)
         html = response.text
@@ -46,7 +48,7 @@ class NewsCrawler:
         # print(text)
         # save to another json file
         new_json_data = {
-            "source": item['source']['name'] if item['source']['name'] else "",
+            "source": item['source']['name'] if item['source'] and item['source']['name'] else "",
             "title": item.get('title'),
             "author": item.get('author'),
             "description": item.get('description'),
@@ -55,9 +57,11 @@ class NewsCrawler:
             "content": text
         }
 
-        new_f.write(json.dumps(new_json_data, ensure_ascii=False) + '\n')
+        if self.load_urls:
+            with open(new_f_name, 'w', encoding='utf-8') as new_f:
+                new_f.write(json.dumps(new_json_data, ensure_ascii=False) + '\n')
 
-        return 1 if text else 0
+        return new_json_data
 
     def crawl_all_news(self):
         success_cnt = 0
@@ -68,7 +72,7 @@ class NewsCrawler:
             records.append(record)
             time.sleep(3)
         
-        with open('news.json', 'w') as new_f:
+        with open('output/json/news.json', 'w') as new_f:
             for rec in records:
                 new_f.write(json.dumps(rec, ensure_ascii=False) + '\n')
                 if rec.get('content'):
@@ -115,7 +119,7 @@ class NewsCrawler:
             records = list(ex.map(self._build_crawled_record, self.items))
             time.sleep(3)
 
-        with open('news.json', 'w', encoding='utf-8') as new_f:
+        with open('output/json/news.json', 'w', encoding='utf-8') as new_f:
             for rec in records:
                 new_f.write(json.dumps(rec, ensure_ascii=False) + '\n')
                 if rec.get('content'):
@@ -129,18 +133,33 @@ class NewsCrawler:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Crawl news from urls and save to news.json file')
-    parser.add_argument('--url_file_name', type=str, required=False, default='url.json', help='The name of the url file')
+    parser.add_argument('--url_file_name', type=str, required=False, default='output/json/url.json', help='The name of the url file')
     parser.add_argument('--workers', type=int, required=False, default=8, help='The number of workers to use')
     args = parser.parse_args()
 
     news_crawler = NewsCrawler(args.url_file_name)
 
-    start_time = time.perf_counter()
-    news_crawler.crawl_all_news()
-    end_time = time.perf_counter()
-    print(f"Single ThreadTime taken: {end_time - start_time} seconds")
+    # start_time = time.perf_counter()
+    # news_crawler.crawl_all_news()
+    # end_time = time.perf_counter()
+    # print(f"Single ThreadTime taken: {end_time - start_time} seconds")
 
     start_time = time.perf_counter()
     news_crawler.crawl_all_news_parallel(args.workers)
     end_time = time.perf_counter()
     print(f"Parallel Thread Time taken: {end_time - start_time} seconds")
+
+    # test news crawler with single url
+    # url = "https://tw.news.yahoo.com/川普槍擊案是因為太自由-學者揭中共處理不同聲音的極權手法-005500457.html"
+    # test_data = {
+    #     "source": None,
+    #     "title": None,
+    #     "author": None,
+    #     "description": None,
+    #     "url": url,
+    #     "publishedAt": None,
+    # }
+
+    # with open('output/json/test_data.json', 'w') as f:
+    #     news_crawler.crawl_news(test_data, f)
+    
