@@ -1,36 +1,50 @@
 # Finance News Summary System
 
-## System Architecture
-![system_architecture](assets/system_architecture.png)
+News text extraction + **BART** summarization (`facebook/bart-large-cnn`). **FastAPI** serves a small static UI; **ARQ** + **Redis** run URL summarization jobs (`POST` → `job_id` → poll `GET /jobs/...`).
 
-```
-task queue: Docker Redis
-```
-1. client先把資料丟給server, server建立job and job_id, 並把job丟到docker redis, 並把job_id回傳給client
-2. 後端的ARQ worker從redis中抓取task來做, 做完之後先存到database, commit之後再將task status更新到redis
-3. Client在跟server要結果的時候, 可以先去redis找job status (redis當作一個cache), 確定task is done, 再跟database query result
-4. 如果redis內的job status已經expired, 就去資料庫query
+Diagrams: [architecture](assets/system_architecture.png) · [pipeline](assets/worker_pipeline.png)
 
-## Worker pipeline
-![worker_pipeline](assets/worker_pipeline.png)
+## Setup
 
-## Quick Start
+```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -U pip && pip install -r requirements.txt
 ```
-./scripts/dev.sh
-```
-This will run the full-stack async system.
 
-```
-python news_url_collector.py --query keyword --start_data YY-MM-DD --end_date YY-MM-DD --language en --sort_by relevancy --page 1
-```
-This script will use newsapi to get urls of news with keyword
+For **CUDA**, install PyTorch from [pytorch.org](https://pytorch.org) first if needed. NewsAPI scripts need a key (see `news_url_collector.py`).
 
-```
-python news_crawler.py --url_file_name url.json --workers num_workers
-```
-This script will use url in url.json to request html code, and then use trafilatura to extract the content. num_workers is the parameter that can use multi thread requests. Faster
+## Run (local)
 
+From the directory with `main.py` and `docker-compose.yml`:
+
+```bash
+chmod +x scripts/dev.sh   # once
+./scripts/dev.sh          # starts Redis (Docker), API, ARQ worker
 ```
+
+- UI: **http://127.0.0.1:8000/**  
+- No Docker (e.g. local Redis): `SKIP_REDIS=1 ./scripts/dev.sh`  
+- Env: `REDIS_HOST` (default `localhost`), `REDIS_PORT` (default `6379`)
+
+Manual: `docker compose up -d` → `python main.py` → `arq arq_worker.WorkerSettings` (three terminals).
+
+## API (short)
+
+| Endpoint | Notes |
+|----------|--------|
+| `POST /api/v1/summarize-url` | `{ "url": "..." }` → `{ "job_id" }` or `503` |
+| `GET /api/v1/jobs/{job_id}` | `complete` / `failed` / in-progress; `404` if missing |
+| `POST /api/v1/search-and-summarize` | Placeholder (`{ "ok": true }`) |
+
+## CLI (batch)
+
+```bash
+python news_url_collector.py --query "bitcoin" --start_date "2026-04-01" --end_date "2026-04-28" --language en --sort_by relevancy --page 1
+python news_crawler.py --url_file_name output/json/url.json --workers 8
 python summary_BART.py --num_beams 2 --max_output_length 60 --batch_size 4
 ```
-This script will use the content in news.json, and summarize each news. num_beams controls the quality of summary, max_output_length regarding the length of summary, batch_size is related to parallel summarizing.
+
+## Troubleshooting
+
+- **Docker / Redis**: use `SKIP_REDIS=1` if Redis runs elsewhere; fix Docker Desktop if compose fails.  
+- **Jobs stuck**: start the **ARQ worker** and match Redis host/port with the API.

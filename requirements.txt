@@ -1,0 +1,18 @@
+# Web API & async jobs
+fastapi>=0.100,<1
+uvicorn[standard]>=0.23,<1
+pydantic>=2,<3
+arq>=0.26
+redis>=5,<6
+
+# Crawling & parsing
+requests>=2.28,<3
+trafilatura>=1.6,<2
+beautifulsoup4>=4.12,<5
+
+# Summarization (large install; for GPU see https://pytorch.org )
+torch>=2.0,<3
+transformers>=4.36,<5
+
+# NewsAPI CLI (news_url_collector.py)
+newsapi-python>=0.2.7
