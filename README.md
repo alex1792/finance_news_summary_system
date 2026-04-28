@@ -1,7 +1,7 @@
 # Finance News Summary System
 
 ## System Architecture
-![system_architecture](system_architecture.png)
+![system_architecture](assets/system_architecture.png)
 
 ```
 task queue: Docker Redis
@@ -12,7 +12,7 @@ task queue: Docker Redis
 4. 如果redis內的job status已經expired, 就去資料庫query
 
 ## Worker pipeline
-![worker_pipeline](worker_pipeline.png)
+![worker_pipeline](assets/worker_pipeline.png)
 
 ## Quick Start
 ```
